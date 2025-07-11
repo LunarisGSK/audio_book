@@ -42,7 +42,10 @@ suggestion_books = [
 def index(request):
     if request.user.is_authenticated:
         suggestions = random.sample(suggestion_books, 5)
-        return render(request, 'books/index.html', {'suggestions': suggestions})
+        return render(request, 'books/index.html', {
+            'suggestions': suggestions,
+            'genres': genres
+        })
     else:
         return render(request, 'books/login.html')
 
@@ -59,6 +62,24 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'books/signup.html', {'form': form})
+
+def custom_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Successfully logged in!')
+                return redirect('index')
+            else:
+                messages.error(request, 'Invalid username or password. Please try again.')
+        else:
+            messages.error(request, 'Please enter both username and password.')
+    
+    return render(request, 'books/login.html')
 
 @login_required
 def predict_genre(request):

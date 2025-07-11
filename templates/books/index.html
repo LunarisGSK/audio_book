@@ -101,7 +101,7 @@
                     <i class="fas fa-chart-bar me-2"></i>Available Genres
                 </h4>
                 <div class="d-flex flex-wrap">
-                    {% for genre in "fantasy,science,crime,history,horror,thriller,psychology,romance,sports,travel"|split:"," %}
+                    {% for genre in genres %}
                         <span class="genre-badge">{{ genre|title }}</span>
                     {% endfor %}
                 </div>
