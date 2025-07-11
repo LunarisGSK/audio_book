@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -47,9 +47,13 @@ def index(request):
             'genres': genres
         })
     else:
-        return render(request, 'books/login.html')
+        return redirect('login')
 
 def signup(request):
+    # Redirect authenticated users to index
+    if request.user.is_authenticated:
+        return redirect('index')
+    
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -64,6 +68,10 @@ def signup(request):
     return render(request, 'books/signup.html', {'form': form})
 
 def custom_login(request):
+    # Redirect authenticated users to index
+    if request.user.is_authenticated:
+        return redirect('index')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -80,6 +88,11 @@ def custom_login(request):
             messages.error(request, 'Please enter both username and password.')
     
     return render(request, 'books/login.html')
+
+def custom_logout(request):
+    logout(request)
+    messages.success(request, 'You have been successfully logged out!')
+    return redirect('login')
 
 @login_required
 def predict_genre(request):
