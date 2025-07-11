@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Book Genre Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-magic fa-3x text-primary mb-3"></i>
+                    <h2 class="fw-bold">Predict Book Genre</h2>
+                    <p class="text-muted">Enter a book name and description to get genre predictions and recommendations</p>
+                </div>
+                
+                <form method="post" action="{% url 'predict_genre' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="book_name" class="form-label fw-bold">
+                            <i class="fas fa-book me-2"></i>Book Name
+                        </label>
+                        <input type="text" class="form-control" id="book_name" name="book_name" 
+                               placeholder="Enter the book title" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="book_description" class="form-label fw-bold">
+                            <i class="fas fa-align-left me-2"></i>Book Description
+                        </label>
+                        <textarea class="form-control" id="book_description" name="book_description" 
+                                  rows="4" placeholder="Describe the book's plot, characters, themes, or any details that might help identify its genre" required></textarea>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-magic me-2"></i>Predict Genre
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Add Recommendation Section -->
+        <div class="card">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="fas fa-heart me-2"></i>Add Your Recommendation
+                </h4>
+                <form method="post" action="{% url 'add_recommendation' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="rec_book_name" class="form-label">Book Name</label>
+                            <input type="text" class="form-control" id="rec_book_name" name="book_name" 
+                                   placeholder="Enter book title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="rec_comment" class="form-label">Your Comment</label>
+                            <input type="text" class="form-control" id="rec_comment" name="comment" 
+                                   placeholder="Why do you recommend this book?" required>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Add Recommendation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="fas fa-lightbulb me-2"></i>Popular Books
+                </h4>
+                <p class="text-muted mb-3">Try these popular books to get started:</p>
+                
+                <div class="mb-3">
+                    {% for book in suggestions %}
+                        <div class="book-suggestion mb-2">
+                            <i class="fas fa-book me-2"></i>{{ book }}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Click on any book to use it as an example
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>Available Genres
+                </h4>
+                <div class="d-flex flex-wrap">
+                    {% for genre in "fantasy,science,crime,history,horror,thriller,psychology,romance,sports,travel"|split:"," %}
+                        <span class="genre-badge">{{ genre|title }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add click functionality to book suggestions
+document.addEventListener('DOMContentLoaded', function() {
+    const suggestions = document.querySelectorAll('.book-suggestion');
+    const bookNameInput = document.getElementById('book_name');
+    
+    suggestions.forEach(suggestion => {
+        suggestion.style.cursor = 'pointer';
+        suggestion.addEventListener('click', function() {
+            bookNameInput.value = this.textContent.trim();
+            bookNameInput.focus();
+        });
+    });
+});
+</script>
+{% endblock %} 

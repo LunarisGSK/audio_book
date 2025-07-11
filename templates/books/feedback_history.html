@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback History - Book Genre Predictor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="fw-bold mb-4">
+                    <i class="fas fa-history me-2"></i>Feedback History
+                </h2>
+                
+                {% if feedbacks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Genre</th>
+                                    <th>Confidence</th>
+                                    <th>Your Rating</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for feedback in feedbacks %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ feedback.book_name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ feedback.book_description|truncatechars:50 }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="genre-badge">{{ feedback.predicted_genre|title }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress me-2" style="width: 60px; height: 8px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: {{ feedback.confidence }}%"></div>
+                                                </div>
+                                                <small>{{ feedback.confidence }}%</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if feedback.user_satisfied %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-thumbs-up me-1"></i>Liked
+                                                </span>
+                                            {% elif feedback.user_satisfied == False %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-thumbs-down me-1"></i>Disliked
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-minus me-1"></i>No Rating
+                                                </span>
+                                            {% endif %}
+                                            
+                                            {% if feedback.user_recommend %}
+                                                <br><span class="badge bg-warning mt-1">
+                                                    <i class="fas fa-heart me-1"></i>Recommended
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ feedback.timestamp|date:"M d, Y" }}
+                                                <br>
+                                                {{ feedback.timestamp|date:"H:i" }}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No feedback history yet</h4>
+                        <p class="text-muted">Start predicting book genres to see your history here!</p>
+                        <a href="{% url 'index' %}" class="btn btn-primary">
+                            <i class="fas fa-magic me-2"></i>Predict Your First Book
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-2">
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-chart-pie me-2"></i>Stats
+                </h5>
+                <div class="text-center">
+                    <h3 class="text-primary">{{ feedbacks.count }}</h3>
+                    <p class="text-muted mb-0">Total Predictions</p>
+                </div>
+                
+                {% if feedbacks %}
+                    <hr class="my-3">
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Liked Predictions</small>
+                        <div class="progress" style="height: 6px;">
+                            {% with liked_count=feedbacks|length %}
+                                {% with liked_percentage=liked_count|multiply:100|divide:feedbacks.count %}
+                                    <div class="progress-bar bg-success" style="width: {{ liked_percentage }}%"></div>
+                                {% endwith %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Average Confidence</small>
+                        <div class="progress" style="height: 6px;">
+                            {% with avg_confidence=feedbacks|length %}
+                                <div class="progress-bar bg-info" style="width: {{ avg_confidence }}%"></div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

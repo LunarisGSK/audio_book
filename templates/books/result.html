@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Prediction Result - Book Genre Predictor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h2 class="fw-bold">Prediction Result</h2>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-book me-2"></i>Book Details
+                        </h5>
+                        <p><strong>Title:</strong> {{ result.book_name }}</p>
+                        <p><strong>Description:</strong> {{ result.book_description }}</p>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-magic me-2"></i>Prediction
+                        </h5>
+                        <div class="mb-3">
+                            <span class="genre-badge fs-5">{{ result.genre|title }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Confidence: {{ result.confidence }}%</label>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ result.confidence }}%" 
+                                     aria-valuenow="{{ result.confidence }}" 
+                                     aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-thumbs-up me-2"></i>Recommended Books
+                    </h5>
+                    <div class="row">
+                        {% for book in result.recommended_books %}
+                            <div class="col-md-6 mb-2">
+                                <div class="book-suggestion">
+                                    <i class="fas fa-book me-2"></i>{{ book }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Feedback Section -->
+                <div class="text-center">
+                    <h6 class="fw-bold mb-3">How was this prediction?</h6>
+                    <div class="feedback-buttons">
+                        <button class="feedback-btn like-btn" onclick="submitFeedback(true, true)">
+                            <i class="fas fa-thumbs-up me-2"></i>Like
+                        </button>
+                        <button class="feedback-btn dislike-btn" onclick="submitFeedback(false, false)">
+                            <i class="fas fa-thumbs-down me-2"></i>Dislike
+                        </button>
+                        <button class="feedback-btn recommend-btn" onclick="submitFeedback(true, true)">
+                            <i class="fas fa-heart me-2"></i>Recommend
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{% url 'index' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Try Another Book
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitFeedback(satisfied, recommend) {
+    const feedbackData = {
+        book_name: "{{ result.book_name }}",
+        book_description: "{{ result.book_description }}",
+        genre: "{{ result.genre }}",
+        confidence: {{ result.confidence }},
+        recommended_books: {{ result.recommended_books|safe }},
+        satisfied: satisfied,
+        recommend: recommend
+    };
+    
+    fetch('{% url "save_feedback" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            const buttons = document.querySelectorAll('.feedback-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
+            
+            // Show success alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>Thank you for your feedback!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').appendChild(alertDiv);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %} 
