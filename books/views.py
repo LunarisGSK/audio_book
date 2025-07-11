@@ -187,4 +187,34 @@ def my_recommendations(request):
 @login_required
 def feedback_history(request):
     feedbacks = BookFeedback.objects.filter(user=request.user)
-    return render(request, 'books/feedback_history.html', {'feedbacks': feedbacks})
+    
+    # Calculate statistics
+    total_feedbacks = feedbacks.count()
+    liked_count = feedbacks.filter(user_satisfied=True).count()
+    disliked_count = feedbacks.filter(user_satisfied=False).count()
+    recommended_count = feedbacks.filter(user_recommend=True).count()
+    
+    # Calculate percentages
+    liked_percentage = (liked_count * 100 / total_feedbacks) if total_feedbacks > 0 else 0
+    disliked_percentage = (disliked_count * 100 / total_feedbacks) if total_feedbacks > 0 else 0
+    recommended_percentage = (recommended_count * 100 / total_feedbacks) if total_feedbacks > 0 else 0
+    
+    # Calculate average confidence
+    avg_confidence = 0
+    if total_feedbacks > 0:
+        total_confidence = sum(feedback.confidence for feedback in feedbacks)
+        avg_confidence = total_confidence / total_feedbacks
+    
+    context = {
+        'feedbacks': feedbacks,
+        'total_feedbacks': total_feedbacks,
+        'liked_count': liked_count,
+        'disliked_count': disliked_count,
+        'recommended_count': recommended_count,
+        'liked_percentage': round(liked_percentage, 1),
+        'disliked_percentage': round(disliked_percentage, 1),
+        'recommended_percentage': round(recommended_percentage, 1),
+        'avg_confidence': round(avg_confidence, 1),
+    }
+    
+    return render(request, 'books/feedback_history.html', context)

@@ -97,7 +97,7 @@
                     <i class="fas fa-chart-pie me-2"></i>Stats
                 </h5>
                 <div class="text-center">
-                    <h3 class="text-primary">{{ feedbacks.count }}</h3>
+                    <h3 class="text-primary">{{ total_feedbacks }}</h3>
                     <p class="text-muted mb-0">Total Predictions</p>
                 </div>
                 
@@ -105,23 +105,35 @@
                     <hr class="my-3">
                     
                     <div class="mb-3">
-                        <small class="text-muted">Liked Predictions</small>
+                        <small class="text-muted">Liked Predictions ({{ liked_count }})</small>
                         <div class="progress" style="height: 6px;">
-                            {% with liked_count=feedbacks|length %}
-                                {% with liked_percentage=liked_count|multiply:100|divide:feedbacks.count %}
-                                    <div class="progress-bar bg-success" style="width: {{ liked_percentage }}%"></div>
-                                {% endwith %}
-                            {% endwith %}
+                            <div class="progress-bar bg-success" style="width: {{ liked_percentage }}%"></div>
                         </div>
+                        <small class="text-muted">{{ liked_percentage }}%</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Disliked Predictions ({{ disliked_count }})</small>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: {{ disliked_percentage }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ disliked_percentage }}%</small>
                     </div>
                     
                     <div class="mb-3">
                         <small class="text-muted">Average Confidence</small>
                         <div class="progress" style="height: 6px;">
-                            {% with avg_confidence=feedbacks|length %}
-                                <div class="progress-bar bg-info" style="width: {{ avg_confidence }}%"></div>
-                            {% endwith %}
+                            <div class="progress-bar bg-info" style="width: {{ avg_confidence }}%"></div>
                         </div>
+                        <small class="text-muted">{{ avg_confidence }}%</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Recommended ({{ recommended_count }})</small>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: {{ recommended_percentage }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ recommended_percentage }}%</small>
                     </div>
                 {% endif %}
             </div>
